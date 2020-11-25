@@ -1,6 +1,6 @@
 State 1 conflicts: 1 shift/reduce
 State 28 conflicts: 1 shift/reduce
-State 32 conflicts: 1 shift/reduce
+State 31 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -76,14 +76,14 @@ Grammar
    54       | FUNCTION ID LPAREN tyfields RPAREN COLON ID EQ exp
 
    55 fundecs: fundec
-   56        | fundecs fundec
+   56        | fundec fundecs
 
    57 dec: tydecs
    58    | vardec
    59    | fundecs
 
    60 decs: dec
-   61     | decs dec
+   61     | dec decs
 
    62 lvalue: ID
    63       | lvalue DOT ID
@@ -659,46 +659,49 @@ State 30
 State 31
 
    55 fundecs: fundec .
+   56        | fundec . fundecs
 
+    FUNCTION  shift, and go to state 25
+
+    FUNCTION  [reduce using rule 55 (fundecs)]
     $default  reduce using rule 55 (fundecs)
+
+    fundec   go to state 31
+    fundecs  go to state 66
 
 
 State 32
 
-   56 fundecs: fundecs . fundec
    59 dec: fundecs .
 
-    FUNCTION  shift, and go to state 25
-
-    FUNCTION  [reduce using rule 59 (dec)]
     $default  reduce using rule 59 (dec)
-
-    fundec  go to state 66
 
 
 State 33
 
    60 decs: dec .
+   61     | dec . decs
 
-    $default  reduce using rule 60 (decs)
-
-
-State 34
-
-   29 exp: LET decs . IN seqexp END
-   61 decs: decs . dec
-
-    IN        shift, and go to state 67
     FUNCTION  shift, and go to state 25
     VAR       shift, and go to state 26
     TYPE      shift, and go to state 27
+
+    $default  reduce using rule 60 (decs)
 
     tydec    go to state 28
     tydecs   go to state 29
     vardec   go to state 30
     fundec   go to state 31
     fundecs  go to state 32
-    dec      go to state 68
+    dec      go to state 33
+    decs     go to state 67
+
+
+State 34
+
+   29 exp: LET decs . IN seqexp END
+
+    IN  shift, and go to state 68
 
 
 State 35
@@ -1216,12 +1219,19 @@ State 65
 
 State 66
 
-   56 fundecs: fundecs fundec .
+   56 fundecs: fundec fundecs .
 
     $default  reduce using rule 56 (fundecs)
 
 
 State 67
+
+   61 decs: dec decs .
+
+    $default  reduce using rule 61 (decs)
+
+
+State 68
 
    29 exp: LET decs IN . seqexp END
 
@@ -1243,13 +1253,6 @@ State 67
     exps    go to state 19
     seqexp  go to state 98
     lvalue  go to state 14
-
-
-State 68
-
-   61 decs: decs dec .
-
-    $default  reduce using rule 61 (decs)
 
 
 State 69
