@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "typeinfo": "c"
+    },
+    "editor.quickSuggestions": {
+        "other": true,
+        "comments": true,
+        "strings": false
+    }
+}

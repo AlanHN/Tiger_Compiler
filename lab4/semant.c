@@ -74,7 +74,7 @@ struct expty transVar(S_table venv, S_table tenv, A_var v)
 			// can't find field
 			EM_error(get_fieldvar_var(v)->pos, "field %s doesn't exist", S_name(get_fieldvar_sym(v)));
 			return expTy(NULL, Ty_Int());
-		} 
+		}
 		else
 		{
 			EM_error(get_fieldvar_var(v)->pos, "not a record type");
@@ -139,7 +139,7 @@ struct expty transExp(S_table venv, S_table tenv, A_exp a)
 		// check the formals and args
 		Ty_tyList formals = get_func_tylist(x);
 		A_expList args = get_callexp_args(a);
-		for (; formals!=NULL; formals = formals->tail, args = args->tail)
+		for (; formals != NULL; formals = formals->tail, args = args->tail)
 		{
 			if (args == NULL)
 			{
@@ -188,7 +188,6 @@ struct expty transExp(S_table venv, S_table tenv, A_exp a)
 		{
 			EM_error(get_opexp_leftpos(a), "wrong oper");
 		}
-		
 	}
 	case A_recordExp:
 	{
@@ -203,7 +202,7 @@ struct expty transExp(S_table venv, S_table tenv, A_exp a)
 	case A_seqExp:
 	{
 		struct expty e;
-		for (A_expList expList = get_seqexp_seq(a); expList!=NULL; expList = expList->tail)
+		for (A_expList expList = get_seqexp_seq(a); expList != NULL; expList = expList->tail)
 		{
 			e = transExp(venv, tenv, expList->head);
 		}
@@ -280,9 +279,10 @@ struct expty transExp(S_table venv, S_table tenv, A_exp a)
 		S_beginScope(venv);
 		S_enter(venv, get_forexp_var(a), E_VarEntry(Ty_Name(get_forexp_var(a), Ty_Int())));
 		struct expty body = transExp(venv, tenv, get_forexp_body(a));
-        S_endScope(venv);
+		S_endScope(venv);
 
-		if (get_expty_kind(body) != Ty_void){
+		if (get_expty_kind(body) != Ty_void)
+		{
 			EM_error(a->pos, "for body must produce no value");
 		}
 		return expTy(NULL, Ty_Void());
@@ -328,9 +328,9 @@ struct expty transExp(S_table venv, S_table tenv, A_exp a)
 
 Ty_tyList makeFormalTyList(S_table tenv, A_fieldList fieldList)
 {
-	Ty_tyList head = NULL,iter = NULL;
+	Ty_tyList head = NULL, iter = NULL;
 	Ty_ty t;
-	for (; fieldList!=NULL; fieldList = fieldList->tail)
+	for (; fieldList != NULL; fieldList = fieldList->tail)
 	{
 		t = S_look(tenv, fieldList->head->typ);
 		if (t == NULL)
@@ -358,11 +358,11 @@ void transDec(S_table venv, S_table tenv, A_dec d)
 	case A_functionDec:
 	{
 		A_fundecList fl, fl2;
-		A_fundec f,f2;
+		A_fundec f, f2;
 		Ty_ty resultTy;
 		Ty_tyList formalTys;
 
-		for (fl = get_funcdec_list(d); fl!=NULL; fl = fl->tail)
+		for (fl = get_funcdec_list(d); fl != NULL; fl = fl->tail)
 		{
 			f = fl->head;
 			for (fl2 = get_funcdec_list(d); fl2 != fl; fl2 = fl2->tail)
@@ -374,7 +374,7 @@ void transDec(S_table venv, S_table tenv, A_dec d)
 					break;
 				}
 			}
-			if (f->result==NULL)
+			if (f->result == NULL)
 			{
 				resultTy = Ty_Void();
 			}
@@ -386,15 +386,15 @@ void transDec(S_table venv, S_table tenv, A_dec d)
 			S_enter(venv, f->name, E_FunEntry(formalTys, resultTy));
 		}
 
-		for (fl = get_funcdec_list(d); fl!=NULL; fl = fl->tail)
+		for (fl = get_funcdec_list(d); fl != NULL; fl = fl->tail)
 		{
 			f = fl->head;
 			E_enventry x = S_look(venv, f->name);
-	
+
 			S_beginScope(venv);
 			A_fieldList params = f->params;
 			Ty_tyList formals = get_func_tylist(x);
-			for (; params!=NULL; params = params->tail, formals = formals->tail)
+			for (; params != NULL; params = params->tail, formals = formals->tail)
 			{
 				S_enter(venv, params->head->name, E_VarEntry(formals->head));
 			}
@@ -435,7 +435,7 @@ void transDec(S_table venv, S_table tenv, A_dec d)
 	case A_typeDec:
 	{
 		A_nametyList t, t2;
-		for (t = get_typedec_list(d); t!=NULL; t = t->tail)
+		for (t = get_typedec_list(d); t != NULL; t = t->tail)
 		{
 			for (t2 = get_typedec_list(d); t2 != t; t2 = t2->tail)
 			{
@@ -502,7 +502,7 @@ Ty_ty transTy(S_table tenv, A_ty a)
 		A_fieldList f;
 		Ty_fieldList tf = NULL;
 		Ty_ty t;
-		for (f = get_ty_record(a); f!=NULL; f = f->tail)
+		for (f = get_ty_record(a); f != NULL; f = f->tail)
 		{
 			t = S_look(tenv, f->head->typ);
 			if (t == NULL)
