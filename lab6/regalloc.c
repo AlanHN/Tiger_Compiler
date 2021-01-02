@@ -23,10 +23,10 @@ struct RA_result RA_regAlloc(F_frame f, AS_instrList il) {
     bool done = TRUE;
 	do{
 		done = TRUE;
-		flowGraph = FG_AssemFlowGraph(il);
+		flowGraph = FG_AssemFlowGraph(il,f);
 		liveGraph = Live_liveness(flowGraph);
-		// colResult = COL_color(liveGraph.graph,F_regTempMap(),F_registers(),liveGraph.moves);
-		colResult = COL_color(liveGraph.graph,F_regTempMap(),F_registers(),liveGraph.moves,liveGraph.temp_to_moves,liveGraph.cost);
+		// colResult = COL_color(liveGraph.graph,F_tempMapInit(),F_registers(),liveGraph.moves);
+		colResult = COL_color(liveGraph.graph,F_tempMapInit(),F_registers(),liveGraph.moves,liveGraph.temp_to_moves,liveGraph.cost);
 		if(colResult.spills!=NULL){
 			il = AS_rewriteSpill(f,il,colResult.spills);
 			done = FALSE;

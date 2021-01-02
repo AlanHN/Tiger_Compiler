@@ -74,7 +74,7 @@ bool FG_isMove(G_node n)
 	return isMove;
 }
 
-G_graph FG_AssemFlowGraph(AS_instrList il)
+G_graph FG_AssemFlowGraph(AS_instrList il,F_frame f)
 {
 	//your code here.
 	G_graph graph = G_Graph();

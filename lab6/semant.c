@@ -558,8 +558,9 @@ Tr_exp transDec(S_table venv, S_table tenv, A_dec d, Tr_level l, Temp_label t)
 
 			Ty_tyList formalTys = makeFormalTyList(tenv, f->params);
 			U_boolList formalEscapes = makeFormalBoolList(f->params);
+
 			// new frame
-			Temp_label newLabel = Temp_newlabel();
+			Temp_label newLabel = Temp_namedlabel(S_name(f->name));
 			Tr_level newLevel = Tr_newLevel(l, newLabel, formalEscapes);
 
 			// enter the FunEntry

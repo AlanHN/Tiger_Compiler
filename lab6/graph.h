@@ -72,8 +72,7 @@ void *G_look(G_table t, G_node node);
 //-------------------set operation---------------
 bool G_nodeIn(G_nodeList nl, G_node n);
 G_nodeList G_nodeRemove(G_nodeList nl, G_node n);
-G_nodeList G_nodeComplement(G_nodeList in, G_nodeList notin);
-G_nodeList G_nodeSplice(G_nodeList a, G_nodeList b);
+G_nodeList G_nodeDiff(G_nodeList in, G_nodeList notin);
 G_nodeList G_nodeUnion(G_nodeList a, G_nodeList b);
 G_nodeList G_nodeAppend(G_nodeList nl, G_node n);
 

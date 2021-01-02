@@ -131,17 +131,6 @@ F_access F_allocLocal(F_frame f, bool escape)
 	}
 }
 
-//IR
-// static Temp_temp fp = NULL;
-// Temp_temp F_FP(void)
-// {
-// 	if (fp == NULL)
-// 	{
-// 		fp = Temp_newtemp();
-// 	}
-// 	return fp;
-// }
-
 T_exp F_Exp(F_access acc, T_exp framePtr)
 {
 	if (acc->kind == inFrame)
@@ -157,11 +146,6 @@ T_exp F_externalCall(string s, T_expList args)
 {
 	return T_Call(T_Name(Temp_namedlabel(s)), args);
 }
-
-// T_stm F_procEntryExit1(F_frame frame, T_stm stm){
-// 	return stm;
-// }
-// fragment
 
 F_frag F_StringFrag(Temp_label label, string str)
 {
@@ -228,8 +212,8 @@ Temp_temp F_r15() {if(!r15) r15 = Temp_newtemp(); return r15;}
 Temp_temp F_SP() {return F_rsp();}
 Temp_temp F_FP() {return F_rbp();}
 Temp_temp F_RV() {return F_rax();}
-Temp_tempList F_X86MUL() {return Temp_TempList(F_rax(), Temp_TempList(F_rdx(), NULL));}
-Temp_tempList F_X86DIV() {return Temp_TempList(F_rax(), Temp_TempList(F_rdx(), NULL));}
+Temp_tempList F_MUL() {return Temp_TempList(F_rax(), Temp_TempList(F_rdx(), NULL));}
+Temp_tempList F_DIV() {return Temp_TempList(F_rax(), Temp_TempList(F_rdx(), NULL));}
 
 static Temp_tempList allregs = NULL;
 Temp_tempList F_registers()
@@ -255,7 +239,7 @@ Temp_tempList F_registers()
 }
 
 static Temp_tempList calleesaves = NULL;
-Temp_tempList F_calleeSavedReg()
+Temp_tempList F_calleeSaves()
 {
 	if (!calleesaves) calleesaves = Temp_TempList(F_rbx(),
 							Temp_TempList(F_r12(),
@@ -267,7 +251,7 @@ Temp_tempList F_calleeSavedReg()
 }
 
 static Temp_tempList callersaves = NULL;
-Temp_tempList F_callerSavedReg()
+Temp_tempList F_callerSaves()
 {
 	if (!callersaves) callersaves = Temp_TempList(F_rax(),
 							Temp_TempList(F_rcx(),
@@ -296,7 +280,7 @@ Temp_tempList F_paramReg()
 }
 
 static Temp_map map = NULL; 
-Temp_map F_regTempMap(void) {
+Temp_map F_tempMapInit(void) {
     if (!map) {
         map = Temp_empty();
         Temp_enter(map, F_rax(), "\%rax");
@@ -323,7 +307,7 @@ Temp_map F_regTempMap(void) {
 T_stm F_procEntryExit1(F_frame frame, T_stm stm) {
 	T_stm shift = frame->shift;
 
-	Temp_tempList temps = F_calleeSavedReg();
+	Temp_tempList temps = F_calleeSaves();
 	T_stm save = NULL;
 	T_stm restore = NULL;
 	for (; temps; temps=temps->tail) {
@@ -345,7 +329,7 @@ T_stm F_procEntryExit1(F_frame frame, T_stm stm) {
 
 static Temp_tempList returnSink = NULL;
 AS_instrList F_procEntryExit2(AS_instrList body) {
-	if (!returnSink) returnSink = Temp_TempList(F_SP(), Temp_TempList(F_FP(), F_calleeSavedReg()));// TODO:check later
+	if (!returnSink) returnSink = Temp_TempList(F_SP(), Temp_TempList(F_FP(), F_calleeSaves()));// TODO:check later
 	return AS_splice(body, AS_InstrList(AS_Oper("", NULL, returnSink, NULL), NULL));
 }
 

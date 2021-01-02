@@ -75,7 +75,7 @@ static void enterMoveMap(G_table t, G_node src, G_node dst)
 
 static Temp_tempList replace(Temp_tempList a, Temp_tempList b, bool *change) {
 	// b >= a
-	Temp_tempList d = Temp_tempComplement(b, a);
+	Temp_tempList d = Temp_tempDiff(b, a);
 	if (d) {
 		if (change!=NULL) {
 			*change= TRUE;
@@ -113,7 +113,7 @@ static G_table buildLiveMap(G_graph flow)
 
 			G_nodeList succ = G_succ(node);
 
-			Temp_tempList new_in = Temp_tempUnion(use, Temp_tempComplement(out, def));
+			Temp_tempList new_in = Temp_tempUnion(use, Temp_tempDiff(out, def));
 			Temp_tempList new_out = NULL;
 			for (; succ; succ = succ->tail)
 			{
@@ -178,7 +178,7 @@ struct Live_graph Live_liveness(G_graph flow)
 			moves = Live_MoveList(Live_Move(src, dst), moves);
 			enterMoveMap(moveTable, src, dst);
 			// if move
-			conflict = Temp_tempComplement(out, use);
+			conflict = Temp_tempDiff(out, use);
 		}
 
 		for (Temp_tempList tl = def; tl; tl = tl->tail)
@@ -241,24 +241,35 @@ Live_moveList Live_moveRemove(Live_moveList ml, Live_move m) {
 	return origin;
 }
 
-Live_moveList Live_moveComplement(Live_moveList in, Live_moveList notin) {
+Live_moveList Live_moveDiff(Live_moveList in, Live_moveList notin) {
 	Live_moveList res = NULL;
-	for (; in; in=in->tail) {
-		if (!Live_moveIn(notin, in->head)) {
+	for (; in; in = in->tail)
+	{
+		if (!Live_moveIn(notin, in->head))
+		{
 			res = Live_MoveList(in->head, res);
 		}
 	}
 	return res;
 }
 
-Live_moveList Live_moveSplice(Live_moveList a, Live_moveList b) {
-  if (a==NULL) return b;
-  return Live_MoveList(a->head, Live_moveSplice(a->tail, b));
-}
-
 Live_moveList Live_moveUnion(Live_moveList a, Live_moveList b) {
-	Live_moveList s = Live_moveComplement(b, a);
-	return Live_moveSplice(a, s);
+	Live_moveList ret = NULL;
+	for (; a; a = a->tail)
+	{
+		if (!Live_moveIn(ret, a->head))
+		{
+			ret = Live_MoveList(a->head, ret);
+		}
+	}
+	for (; b; b = b->tail)
+	{
+		if (!Live_moveIn(ret, b->head))
+		{
+			ret = Live_MoveList(b->head, ret);
+		}
+	}
+	return ret;
 }
 
 Live_moveList Live_moveIntersect(Live_moveList a, Live_moveList b) {

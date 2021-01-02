@@ -43,7 +43,7 @@ Temp_map Temp_name(void);
 // bool Temp_labelIn(Temp_labelList l, Temp_label label);
 //--------------set operation----------------
 bool Temp_tempIn(Temp_tempList tl, Temp_temp t);
-Temp_tempList Temp_tempComplement(Temp_tempList in, Temp_tempList notin);
+Temp_tempList Temp_tempDiff(Temp_tempList in, Temp_tempList notin);
 Temp_tempList Temp_tempSplice(Temp_tempList a, Temp_tempList b);
 Temp_tempList Temp_tempUnion(Temp_tempList a, Temp_tempList b);
 

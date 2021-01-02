@@ -222,61 +222,80 @@ void Temp_dumpMap(FILE *out, Temp_map m)
 
 //------------set operation-----------------------
 
-bool Temp_tempIn(Temp_tempList tl, Temp_temp t) {
-	for (; tl; tl=tl->tail) {
-		if (tl->head == t) {
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-
-Temp_tempList Temp_tempComplement(Temp_tempList in, Temp_tempList notin) {
-	Temp_tempList res = NULL;
-	for (; in; in=in->tail) {
-		if (!Temp_tempIn(notin, in->head)) {
-			res = Temp_TempList(in->head, res);
-		}
-	}
-	return res;
-}
-
-Temp_tempList Temp_tempSplice(Temp_tempList a, Temp_tempList b) {
-  if (a==NULL) return b;
-  return Temp_TempList(a->head, Temp_tempSplice(a->tail, b));
-}
-
-Temp_tempList Temp_tempUnion(Temp_tempList a, Temp_tempList b) {
-	Temp_tempList s = Temp_tempComplement(b, a);
-	return Temp_tempSplice(a, s);
-}
-
-void Temp_tempReplace(Temp_tempList l, Temp_temp origin, Temp_temp newTemp) {
-  for (; l; l=l->tail) {
-    if (l->head == origin) {
-      l->head = newTemp;
-    }
-  }
-}
-
-bool Temp_labelIn(Temp_labelList ll, Temp_label label) {
-  for (; ll; ll=ll->tail) {
-    if (ll->head == label) {
+bool Temp_tempIn(Temp_tempList tl, Temp_temp t)
+{
+  for (; tl; tl = tl->tail)
+  {
+    if (tl->head == t)
+    {
       return TRUE;
     }
   }
   return FALSE;
 }
 
-Temp_tempList Temp_tempAppend(Temp_tempList tl, Temp_temp t) {
-  if (Temp_tempIn(tl, t)) {
-    return tl;
-  } else {
-    return Temp_TempList(t, tl);
+Temp_tempList Temp_tempDiff(Temp_tempList in, Temp_tempList notin)
+{
+  Temp_tempList res = NULL;
+  for (; in; in = in->tail)
+  {
+    if (!Temp_tempIn(notin, in->head))
+    {
+      res = Temp_TempList(in->head, res);
+    }
+  }
+  return res;
+}
+
+Temp_tempList Temp_tempSplice(Temp_tempList a, Temp_tempList b)
+{
+  if (a == NULL)
+  {
+    return b;
+  }
+  else
+  {
+    return Temp_TempList(a->head, Temp_tempSplice(a->tail, b));
   }
 }
 
-//---------------debug--------------------
-int Temp_getTempnum(Temp_temp t) {
-  return t->num;
+Temp_tempList Temp_tempUnion(Temp_tempList a, Temp_tempList b)
+{
+  Temp_tempList s = Temp_tempDiff(b, a);
+  return Temp_tempSplice(a, s);
+}
+
+void Temp_tempReplace(Temp_tempList l, Temp_temp origin, Temp_temp newTemp)
+{
+  for (; l; l = l->tail)
+  {
+    if (l->head == origin)
+    {
+      l->head = newTemp;
+    }
+  }
+}
+
+bool Temp_labelIn(Temp_labelList ll, Temp_label label)
+{
+  for (; ll; ll = ll->tail)
+  {
+    if (ll->head == label)
+    {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+Temp_tempList Temp_tempAppend(Temp_tempList tl, Temp_temp t)
+{
+  if (Temp_tempIn(tl, t))
+  {
+    return tl;
+  }
+  else
+  {
+    return Temp_TempList(t, tl);
+  }
 }

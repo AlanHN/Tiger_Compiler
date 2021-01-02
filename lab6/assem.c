@@ -266,6 +266,7 @@ AS_instrList AS_rewriteSpill(F_frame f, AS_instrList il, Temp_tempList spills)
   for (; spills; spills = spills->tail)
   {
     Temp_temp t = spills->head;
+    // alloc local
     F_access acc = F_allocLocal(f, TRUE);
     AS_instrList i = il;
     for (; i; i = i->tail)
@@ -294,23 +295,24 @@ AS_instrList AS_rewriteSpill(F_frame f, AS_instrList il, Temp_tempList spills)
         assert(0);
         break;
       }
+      // if t is in src , add movq value to t before
       if (Temp_tempIn(src, t))
       {
         Temp_temp newTemp = Temp_newtemp();
         char buf[256];
-        sprintf(buf, "\tmovq %d(`s0), `d0 # spilled use %d", acc->u.offset, Temp_int(t));
+        sprintf(buf, "\tmovq %d(`s0), `d0", acc->u.offset);
         AS_instr newInstr = AS_Oper(String(buf), Temp_TempList(newTemp, NULL), Temp_TempList(F_FP(), NULL), NULL);
         Temp_tempReplace(src, t, newTemp);
         i->tail = AS_InstrList(i->head, i->tail);
         i->head = newInstr;
         i = i->tail;
       }
-
+      // if t is in dst , move it to the stack, attention: rbp can only be the source.
       if (Temp_tempIn(dst, t))
       {
         Temp_temp newTemp = Temp_newtemp();
         char buf[256];
-        sprintf(buf, "\tmovq `s0, %d(`s1) # spilled def %d", acc->u.offset, Temp_int(t));
+        sprintf(buf, "\tmovq `s0, %d(`s1)", acc->u.offset);
         AS_instr newInstr = AS_Oper(String(buf), NULL, Temp_TempList(newTemp, Temp_TempList(F_FP(), NULL)), NULL);
         Temp_tempReplace(dst, t, newTemp);
         i->tail = AS_InstrList(newInstr, i->tail);

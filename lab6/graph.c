@@ -239,24 +239,30 @@ G_nodeList G_nodeRemove(G_nodeList nl, G_node n) {
 	return origin;
 }
 
-G_nodeList G_nodeComplement(G_nodeList in, G_nodeList notin) {
-	G_nodeList res = NULL;
+G_nodeList G_nodeDiff(G_nodeList in, G_nodeList notin) {
+	G_nodeList ret = NULL;
 	for (; in; in=in->tail) {
 		if (!G_nodeIn(notin, in->head)) {
-			res = G_NodeList(in->head, res);
+			ret = G_NodeList(in->head, ret);
 		}
 	}
-	return res;
-}
-
-G_nodeList G_nodeSplice(G_nodeList a, G_nodeList b) {
-  if (a==NULL) return b;
-  return G_NodeList(a->head, G_nodeSplice(a->tail, b));
+	return ret;
 }
 
 G_nodeList G_nodeUnion(G_nodeList a, G_nodeList b) {
-	G_nodeList s = G_nodeComplement(b, a);
-	return G_nodeSplice(a, s);
+
+  G_nodeList ret = NULL;
+	for (; a; a=a->tail) {
+		if (!G_nodeIn(ret, a->head)) {
+			ret = G_NodeList(a->head, ret);
+		}
+	}
+  	for (; b; b=b->tail) {
+		if (!G_nodeIn(ret, b->head)) {
+			ret = G_NodeList(b->head, ret);
+		}
+	}
+	return ret;
 }
 
 G_nodeList G_nodeAppend(G_nodeList nl, G_node n) {

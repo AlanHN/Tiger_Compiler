@@ -78,17 +78,17 @@ static Temp_temp munchExp(T_exp e)
         }
         case T_mul:
         {
-            emit(AS_Move("\tmovq `s0, `d0", F_X86MUL(), Temp_TempList(left, NULL)));
-            emit(AS_Oper("\timulq `s0, `d0", F_X86MUL(), Temp_TempList(right, F_X86MUL()), NULL));
-            emit(AS_Move("\tmovq `s0, `d0", Temp_TempList(ret, NULL), F_X86MUL()));
+            emit(AS_Move("\tmovq `s0, `d0", F_MUL(), Temp_TempList(left, NULL)));
+            emit(AS_Oper("\timulq `s0, `d0", F_MUL(), Temp_TempList(right, F_MUL()), NULL));
+            emit(AS_Move("\tmovq `s0, `d0", Temp_TempList(ret, NULL), F_MUL()));
             break;
         }
         case T_div:
         {
-            emit(AS_Move("\tmovq `s0, `d0", F_X86DIV(), Temp_TempList(left, NULL)));
-            emit(AS_Oper("\tcltd", F_X86DIV(), F_X86DIV(), NULL));
-            emit(AS_Oper("\tidivq `s0", F_X86DIV(), Temp_TempList(right, F_X86DIV()), NULL));
-            emit(AS_Move("\tmovq `s0, `d0", Temp_TempList(ret, NULL), F_X86DIV()));
+            emit(AS_Move("\tmovq `s0, `d0", F_DIV(), Temp_TempList(left, NULL)));
+            emit(AS_Oper("\tcltd", F_DIV(), F_DIV(), NULL));
+            emit(AS_Oper("\tidivq `s0", F_DIV(), Temp_TempList(right, F_DIV()), NULL));
+            emit(AS_Move("\tmovq `s0, `d0", Temp_TempList(ret, NULL), F_DIV()));
             break;
         }
         default:
@@ -179,7 +179,7 @@ static Temp_temp munchExp(T_exp e)
 
         // call
         sprintf(buf, "\tcall %s", Temp_labelstring(e->u.CALL.fun->u.NAME));
-        emit(AS_Oper(String(buf), Temp_TempList(F_RV(), F_callerSavedReg()), l, NULL));
+        emit(AS_Oper(String(buf), Temp_TempList(F_RV(), F_callerSaves()), l, NULL));
 
         // adjust stack
         if (stack_size > 0)

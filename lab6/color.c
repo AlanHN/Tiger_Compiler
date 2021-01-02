@@ -13,7 +13,7 @@
 #include "color.h"
 #include "table.h"
 
-#define INFINITE 100000
+#define INFINITE 10000000
 static int K; // num of register
 static Temp_tempList precolored;
 static G_graph interferenceGraph;
@@ -22,39 +22,6 @@ static Live_moveList coalescedMoves, constrainedMoves, frozenMoves, worklistMove
 
 static G_table degree, moveList, alias, color, spillCost;
 
-//---------------debug----------------
-int tempCount(Temp_tempList tl) {
-	int i = 0;
-	for (; tl; tl=tl->tail) i++;
-	return i;
-}
-
-int nodeCount(G_nodeList nl) {
-	int i = 0;
-	for (; nl; nl=nl->tail) i++;
-	return i;
-}
-
-int moveCount(Live_moveList ml) {
-	int i = 0;
-	for (; ml; ml=ml->tail) i++;
-	return i;
-}
-
-int nodeNum(G_node n) {
-	return Temp_getTempnum(Live_gtemp(n));
-}
-
-char *printNodes(G_nodeList nl) {
-	char *buf = checked_malloc(1024);
-	*buf = '\0';
-	for (; nl;nl=nl->tail) {
-		sprintf(buf, "%s %d,", buf, nodeNum(nl->head));
-	}
-	return buf;
-}
-
-//-------------------------------------
 
 //----------------wrap functions-------------
 void enterAliasMap(G_node n, G_node a) {
@@ -114,7 +81,7 @@ bool isMoveRelated(G_node n) {
 }
 
 G_nodeList adjacent(G_node n) {
-	return G_nodeComplement(G_succ(n), G_nodeUnion(selectStack, coalescedNodes));
+	return G_nodeDiff(G_succ(n), G_nodeUnion(selectStack, coalescedNodes));
 }
 
 G_node getAlias(G_node n) {
@@ -382,7 +349,7 @@ void assignColors() {
 		for (; adj; adj=adj->tail) {
 			G_node w = adj->head;
 			if (G_nodeIn(coloredNodes, getAlias(w)) || isPrecolored(getAlias(w))) {
-				okColors = Temp_tempComplement(okColors, Temp_TempList(getColor(getAlias(w)), NULL));
+				okColors = Temp_tempDiff(okColors, Temp_TempList(getColor(getAlias(w)), NULL));
 			}
 		}
 		if (!okColors) {

@@ -34,8 +34,7 @@ struct Live_graph Live_liveness(G_graph flow);
 //-----------------set operation-------------------------
 bool Live_moveIn(Live_moveList ml, Live_move m);
 Live_moveList Live_moveRemove(Live_moveList ml, Live_move m);
-Live_moveList Live_moveComplement(Live_moveList in, Live_moveList notin);
-Live_moveList Live_moveSplice(Live_moveList a, Live_moveList b);
+Live_moveList Live_moveDiff(Live_moveList in, Live_moveList notin);
 Live_moveList Live_moveUnion(Live_moveList a, Live_moveList b);
 Live_moveList Live_moveIntersect(Live_moveList a, Live_moveList b);
 Live_moveList Live_moveAppend(Live_moveList ml, Live_move m);

@@ -92,18 +92,18 @@ F_fragList F_FragList(F_frag head, F_fragList tail);
 
 // Instruction select
 Temp_map F_tempMap;
-Temp_map F_regTempMap();
+Temp_map F_tempMapInit();
 
 //specialregs
 Temp_temp F_FP();
 Temp_temp F_SP();
 Temp_temp F_RV();
-Temp_tempList F_X86MUL();
-Temp_tempList F_X86DIV();
+Temp_tempList F_MUL();
+Temp_tempList F_DIV();
 
 Temp_tempList F_registers(void);
-Temp_tempList F_calleeSavedReg(void);
-Temp_tempList F_callerSavedReg(void);
+Temp_tempList F_calleeSaves(void);
+Temp_tempList F_callerSaves(void);
 Temp_tempList F_paramReg(void);
 
 // proc handler
