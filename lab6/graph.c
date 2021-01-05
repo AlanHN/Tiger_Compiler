@@ -211,8 +211,6 @@ void *G_look(G_table t, G_node node)
   return TAB_look(t, node);
 }
 
-//---------------set operation------------------
-
 bool G_nodeIn(G_nodeList nl, G_node n) {
 	for (; nl; nl=nl->tail) {
 		if (nl->head == n) {

@@ -23,15 +23,14 @@ struct Live_graph
 {
 	G_graph graph;  // inferencegraph
 	Live_moveList moves;   // moves
-	G_table temp_to_moves;    // move temps
-	G_table cost;   // move cost
+	G_table moveList;    // movelist for color
+	G_table cost;   // cost for color
 };
 
 Temp_temp Live_gtemp(G_node n);
 
 struct Live_graph Live_liveness(G_graph flow);
 
-//-----------------set operation-------------------------
 bool Live_moveIn(Live_moveList ml, Live_move m);
 Live_moveList Live_moveRemove(Live_moveList ml, Live_move m);
 Live_moveList Live_moveDiff(Live_moveList in, Live_moveList notin);

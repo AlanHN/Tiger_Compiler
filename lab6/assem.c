@@ -221,7 +221,9 @@ AS_instrList AS_rewrite(AS_instrList iList, Temp_map m)
     {
       Temp_temp src = instr->u.MOVE.src->head;
       Temp_temp dst = instr->u.MOVE.dst->head;
-      if (Temp_look(m, src) == Temp_look(m, dst))
+      string src_s = Temp_look(m, src);
+      string dst_s = Temp_look(m, dst);
+      if (src_s == dst_s)
       {
         if (prev)
         {
@@ -235,7 +237,8 @@ AS_instrList AS_rewrite(AS_instrList iList, Temp_map m)
       }
     }
     // delete all jmp-to-next
-    if (instr->kind == I_OPER && strncmp("\tjmp", instr->u.OPER.assem, 4) == 0)
+    bool isjmp =  strncmp("\tjmp", instr->u.OPER.assem, 4) == 0;
+    if (isjmp)
     {
       if (i->tail)
       {

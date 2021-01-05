@@ -13,30 +13,30 @@
 #include "table.h"
 #include "flowgraph.h"
 
+struct COL_result colResult;
+
+static void Main(F_frame f, AS_instrList il)
+{
+	G_graph flowGraph = FG_AssemFlowGraph(il, f);
+	struct Live_graph liveGraph = Live_liveness(flowGraph);
+	//Build --AssignColor
+	colResult = COL_color(liveGraph.graph, F_tempMapInit(), F_registers(), liveGraph.moves, liveGraph.moveList, liveGraph.cost);
+	if (colResult.spills != NULL)
+	{
+		il = AS_rewriteSpill(f, il, colResult.spills);
+		Main(f,il);
+	}
+}
 struct RA_result RA_regAlloc(F_frame f, AS_instrList il) {
 	//your code here
 	struct RA_result ret;
-	G_graph flowGraph;
-	struct Live_graph liveGraph;
-	struct COL_result colResult;
 
-    bool done = TRUE;
-	do{
-		done = TRUE;
-		flowGraph = FG_AssemFlowGraph(il,f);
-		liveGraph = Live_liveness(flowGraph);
-		// colResult = COL_color(liveGraph.graph,F_tempMapInit(),F_registers(),liveGraph.moves);
-		colResult = COL_color(liveGraph.graph,F_tempMapInit(),F_registers(),liveGraph.moves,liveGraph.temp_to_moves,liveGraph.cost);
-		if(colResult.spills!=NULL){
-			il = AS_rewriteSpill(f,il,colResult.spills);
-			done = FALSE;
-		}
-	}while(!done);
+	Main(f,il);
 
-	AS_instrList nil = AS_rewrite(il, colResult.coloring);
+	AS_instrList rewrite = AS_rewrite(il, colResult.coloring);
 
 	ret.coloring = colResult.coloring;
-	ret.il = nil;
+	ret.il = rewrite;
 
 	return ret;
 }

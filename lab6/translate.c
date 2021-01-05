@@ -183,8 +183,8 @@ patchList joinPatch(patchList first, patchList second)
 {
 	if (!first)
 		return second;
-	for (; first->tail; first = first->tail)
-		;
+	while(first->tail) 
+	{first = first->tail;}
 	first->tail = second;
 	return first;
 }
@@ -254,23 +254,6 @@ static struct Cx unCx(Tr_exp e)
 	case Tr_ex:
 	{
 		struct Cx cx;
-		/* treat CONST(1) and CONST(0) specially */
-		if (e->u.ex->kind == T_CONST)
-		{
-			cx.stm = T_Jump(T_Name(NULL), Temp_LabelList(NULL, NULL));
-			if (e->u.ex->u.CONST == 0)
-			{
-				cx.falses = PatchList(&(cx.stm->u.JUMP.exp->u.NAME),
-									  PatchList(&(cx.stm->u.JUMP.jumps->head), NULL)); // always false
-				return cx;
-			}
-			else if (e->u.ex->u.CONST == 1)
-			{
-				cx.trues = PatchList(&(cx.stm->u.JUMP.exp->u.NAME),
-									 PatchList(&(cx.stm->u.JUMP.jumps->head), NULL)); // always true
-				return cx;
-			}
-		}
 		cx.stm = T_Cjump(T_ne, e->u.ex, T_Const(0), NULL, NULL);
 		cx.trues = PatchList(&(cx.stm->u.CJUMP.true), NULL);
 		cx.falses = PatchList(&(cx.stm->u.CJUMP.false), NULL);
@@ -506,7 +489,6 @@ Tr_exp Tr_ifExp(Tr_exp test, Tr_exp then, Tr_exp elsee)
 	doPatch(c.trues, t);
 	doPatch(c.falses, f);
 
-	// Todo: consider cx
 	if (elsee == NULL)
 	{
 		return Tr_Nx(T_Seq(c.stm,

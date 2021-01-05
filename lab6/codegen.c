@@ -28,7 +28,9 @@ static void emit(AS_instr inst)
 
 static Temp_temp munchExp(T_exp e);
 static void munchStm(T_stm s);
-static Temp_tempList munchArgs(int i, T_expList args, int *stack_size);
+
+int stack_size = 0;
+static Temp_tempList munchArgs(int i, T_expList args);
 
 AS_instrList F_codegen(F_frame f, T_stmList stmList)
 {
@@ -159,6 +161,7 @@ static Temp_temp munchExp(T_exp e)
     case T_NAME:
     {
         Temp_temp ret = Temp_newtemp();
+        // little tricky
         sprintf(buf, "\tleaq .%s(%rip), `d0", Temp_labelstring(e->u.NAME));
         emit(AS_Oper(String(buf), Temp_TempList(ret, NULL), NULL, NULL));
         return ret;
@@ -173,9 +176,9 @@ static Temp_temp munchExp(T_exp e)
     case T_CALL:
     {
         Temp_temp ret = F_RV();
-        int stack_size = 0;
+        stack_size = 0;
         // args
-        Temp_tempList l = munchArgs(0, e->u.CALL.args, &stack_size);
+        Temp_tempList l = munchArgs(0, e->u.CALL.args);
 
         // call
         sprintf(buf, "\tcall %s", Temp_labelstring(e->u.CALL.fun->u.NAME));
@@ -228,36 +231,35 @@ static void munchStm(T_stm s)
         {
         case T_eq:
         {
-            op = "je";
+            sprintf(buf, "\tje .`j0");
             break;
         }
         case T_ne:
         {
-            op = "jne";
+            sprintf(buf, "\tjne .`j0");
             break;
         }
         case T_lt:
         {
-            op = "jl";
+            sprintf(buf, "\tjl .`j0");
             break;
         }
         case T_gt:
         {
-            op = "jg";
+            sprintf(buf, "\tjg .`j0");
             break;
         }
         case T_le:
         {
-            op = "jle";
+            sprintf(buf, "\tjle .`j0");
             break;
         }
         case T_ge:
         {
-            op = "jge";
+            sprintf(buf, "\tjge .`j0");
             break;
         }
         }
-        sprintf(buf, "\t%s .`j0", op);
         emit(AS_Oper(String(buf), NULL, NULL, AS_Targets(Temp_LabelList(s->u.CJUMP.true, NULL))));
         break;
     }
@@ -319,12 +321,13 @@ static void munchStm(T_stm s)
         break;
     }
     default:
-        //assert(0);
+        assert(0);
         break;
     }
 }
 
-static Temp_tempList munchArgs(int i, T_expList args, int *stack_size)
+
+static Temp_tempList munchArgs(int i, T_expList args)
 {
     if (!args)
     {
@@ -332,14 +335,14 @@ static Temp_tempList munchArgs(int i, T_expList args, int *stack_size)
     }
     else
     {
-        Temp_tempList recur = munchArgs(i + 1, args->tail, stack_size);
+        Temp_tempList recur = munchArgs(i + 1, args->tail);
         Temp_temp cur = munchExp(args->head);
         Temp_temp arg = NULL;
         // push to stack
         if (i >= F_formalRegNum)
         {
             emit(AS_Oper("\tpushq `s0", Temp_TempList(F_SP(), NULL), Temp_TempList(cur, Temp_TempList(F_SP(), NULL)), NULL));
-            *stack_size += F_wordSize;
+            stack_size += F_wordSize;
         }
         else
         {

@@ -1,2 +1,0 @@
-# tiger
-A tiger compiler

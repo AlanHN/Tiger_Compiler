@@ -68,6 +68,7 @@ static F_accessList makeFormalAccessList(F_frame f,U_boolList formals)
 	return head;
 }
 
+
 static T_stm makeShiftStm(F_frame f)
 {
 	Temp_tempList tl = F_paramReg();
@@ -82,7 +83,7 @@ static T_stm makeShiftStm(F_frame f)
 			src = T_Temp(tl->head);
 		} else {
 			// move to stack
-			// return address and saved %rbp
+			// 2 words for return address and saved %rbp
 			src = T_Mem(T_Binop(T_plus, T_Temp(F_FP()), T_Const((i - F_formalRegNum + 2) * F_wordSize)));
 		}
 		s = T_Move(dst, src);
@@ -174,7 +175,7 @@ F_fragList F_FragList(F_frag head, F_fragList tail)
 }
 
 /* registers */
-// TODO
+
 static Temp_temp rax = NULL;
 static Temp_temp rbx = NULL;
 static Temp_temp rcx = NULL;
@@ -215,10 +216,10 @@ Temp_temp F_RV() {return F_rax();}
 Temp_tempList F_MUL() {return Temp_TempList(F_rax(), Temp_TempList(F_rdx(), NULL));}
 Temp_tempList F_DIV() {return Temp_TempList(F_rax(), Temp_TempList(F_rdx(), NULL));}
 
-static Temp_tempList allregs = NULL;
+static Temp_tempList registers = NULL;
 Temp_tempList F_registers()
 {
-	if (!allregs) allregs = Temp_TempList(F_rax(),
+	if (!registers) registers = Temp_TempList(F_rax(),
 							Temp_TempList(F_rbx(),
 							Temp_TempList(F_rcx(),
 							Temp_TempList(F_rdx(),
@@ -235,7 +236,7 @@ Temp_tempList F_registers()
 							Temp_TempList(F_r14(),
 							Temp_TempList(F_r15(),
 							NULL))))))))))))))));
-	return allregs;
+	return registers;
 }
 
 static Temp_tempList calleesaves = NULL;
@@ -303,33 +304,31 @@ Temp_map F_tempMapInit(void) {
     return map;
 }
 
-// TODO
-T_stm F_procEntryExit1(F_frame frame, T_stm stm) {
-	T_stm shift = frame->shift;
 
-	Temp_tempList temps = F_calleeSaves();
-	T_stm save = NULL;
-	T_stm restore = NULL;
-	for (; temps; temps=temps->tail) {
-		T_stm s = T_Move(T_Temp(Temp_newtemp()), T_Temp(temps->head));
+T_stm F_procEntryExit1(F_frame frame, T_stm stm) {
+	Temp_tempList calleesaves = F_calleeSaves();
+	T_stm saveStm = NULL;
+	T_stm restoreStm = NULL;
+	for (; calleesaves; calleesaves=calleesaves->tail) {
+		T_stm s = T_Move(T_Temp(Temp_newtemp()), T_Temp(calleesaves->head));
 		T_stm r = T_Move(s->u.MOVE.src, s->u.MOVE.dst);
-		if (save == NULL) {
-			save = s;
+		if (saveStm == NULL) {
+			saveStm = s;
 		} else {
-			save = T_Seq(save, s);
+			saveStm = T_Seq(saveStm, s);
 		}
-		if (restore == NULL) {
-			restore = r;
+		if (restoreStm == NULL) {
+			restoreStm = r;
 		} else {
-			restore = T_Seq(restore, r);
+			restoreStm = T_Seq(restoreStm, r);
 		}
 	}
-	return T_Seq(save, T_Seq(shift, T_Seq(stm, restore)));
+	return T_Seq(saveStm, T_Seq(frame->shift, T_Seq(stm, restoreStm)));
 }
 
 static Temp_tempList returnSink = NULL;
 AS_instrList F_procEntryExit2(AS_instrList body) {
-	if (!returnSink) returnSink = Temp_TempList(F_SP(), Temp_TempList(F_FP(), F_calleeSaves()));// TODO:check later
+	if (!returnSink) returnSink = Temp_TempList(F_SP(), Temp_TempList(F_FP(), F_calleeSaves()));
 	return AS_splice(body, AS_InstrList(AS_Oper("", NULL, returnSink, NULL), NULL));
 }
 

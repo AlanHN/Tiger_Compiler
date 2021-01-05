@@ -86,12 +86,12 @@ static void doProc(FILE *out, F_frame frame, T_stm body)
 
 void doStr(FILE *out, Temp_label label, string str)
 {
-  fprintf(out, ".section .rodata\n");
+  fprintf(out, "\t.section .rodata\n");
   fprintf(out, ".%s:\n", S_name(label));
 
   int length = *(int *)str;
   	length = length + 4;
-	fprintf(out, ".string \"");
+	fprintf(out, "\t.string \"");
 	int i = 0;
 	for (; i < length; i++) {
         if ((str[i] < 32) || (str[i] > 176)) {
@@ -139,6 +139,7 @@ int main(int argc, string *argv)
     /* convert the filename */
     sprintf(outfile, "%s.s", argv[1]);
     out = fopen(outfile, "w");
+    fprintf(out,"\t.file \"%s\"\n",argv[1]);
     /* Chapter 8, 9, 10, 11 & 12 */
     for (; frags; frags = frags->tail)
       if (frags->head->kind == F_procFrag)
