@@ -182,9 +182,13 @@ void doPatch(patchList tList, Temp_label label)
 patchList joinPatch(patchList first, patchList second)
 {
 	if (!first)
+	{
 		return second;
-	while(first->tail) 
-	{first = first->tail;}
+	}
+	while (first->tail)
+	{
+		first = first->tail;
+	}
 	first->tail = second;
 	return first;
 }
@@ -275,6 +279,7 @@ static F_fragList fragList = NULL;
 void Tr_procEntryExit(Tr_level level, Tr_exp body, Tr_accessList formals)
 {
 	Temp_temp t = Temp_newtemp();
+	// body->t,t->%rax
 	T_stm stm = F_procEntryExit1(level->frame, T_Seq(T_Move(T_Temp(t), unEx(body)), T_Move(T_Temp(F_RV()), T_Temp(t))));
 	F_frag f = F_ProcFrag(stm, level->frame);
 	fragList = F_FragList(f, fragList);
@@ -323,10 +328,6 @@ Tr_exp Tr_intExp(int i)
 
 Tr_exp Tr_stringExp(string lit)
 {
-	// Temp_label lab = Temp_newlabel();
-	// F_frag f = F_StringFrag(lab, lit);
-	// fragList = F_FragList(f, fragList);
-	// return Tr_Ex(T_Name(lab));
 	// if find
 	for (F_fragList fl = fragList; fl; fl = fl->tail)
 	{

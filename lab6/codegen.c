@@ -44,7 +44,7 @@ AS_instrList F_codegen(F_frame f, T_stmList stmList)
     AS_instrList list = iList;
     iList = last = NULL;
 
-     return F_procEntryExit2(list);
+    return F_procEntryExit2(list);
 }
 
 static Temp_tempList L(Temp_temp h, Temp_tempList t) { return Temp_TempList(h, t); }
@@ -266,7 +266,7 @@ static void munchStm(T_stm s)
     case T_MOVE:
     {
         T_exp dst = s->u.MOVE.dst;
-        T_exp src = s->u.MOVE.src;  
+        T_exp src = s->u.MOVE.src;
         Temp_temp t = munchExp(src);
         switch (dst->kind)
         {

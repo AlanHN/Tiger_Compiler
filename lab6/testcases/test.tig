@@ -1,0 +1,8 @@
+let
+    var N := 1
+    type intArray = array of int
+
+    var list := intArray [N] of 0
+in
+    printi(list[0])
+end

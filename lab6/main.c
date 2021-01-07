@@ -76,6 +76,7 @@ static void doProc(FILE *out, F_frame frame, T_stm body)
   struct RA_result ra = RA_regAlloc(frame, iList); /* 11 */
   proc = F_procEntryExit3(frame, ra.il);
   // AS_printInstrList(stdout, ra.il, Temp_layerMap(F_tempMap, Temp_name()));
+  // Temp_dumpMap(stdout,ra.coloring);
   // printf("----======after RA=======-----\n");
 
   fprintf(out, "%s", proc->prolog);

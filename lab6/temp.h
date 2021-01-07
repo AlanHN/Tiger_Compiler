@@ -53,8 +53,5 @@ bool Temp_labelIn(Temp_labelList ll, Temp_label label);
 
 Temp_tempList Temp_tempAppend(Temp_tempList tl, Temp_temp t);
 
-//-------------debug------------------
-int Temp_getTempnum(Temp_temp t);
-
 
 #endif
